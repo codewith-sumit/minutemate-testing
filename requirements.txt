@@ -1,0 +1,10 @@
+Flask==2.3.3
+Flask-Mail==0.9.1
+Flask-OAuthlib==0.9.6
+Flask-SQLAlchemy==3.1.1
+python-dotenv==1.0.1
+itsdangerous==2.1.2
+Werkzeug==2.3.7
+reportlab==4.1.0
+google-genai
+

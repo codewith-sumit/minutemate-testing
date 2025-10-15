@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meeting Note</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+    body {
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #0ff;
+      margin: 0;
+    }
+    .container {
+      background: #1c1f2b;
+      color: #0ff;
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #0ff;
+    }
+    button {
+      background-color: #0ff;
+      color: #000;
+      padding: 12px 25px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #0aa;
+      box-shadow: 0 0 15px #0aa, 0 0 25px #0aa;
+    }
+    .error {
+      color: #ff4c4c;
+      font-weight: bold;
+    }
+    #doneBox, #summaryBox {
+      display: none;
+      margin-top: 20px;
+    }
+    #summaryBox {
+      text-align: left;
+      background: #111827;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #summaryBox h3 {
+      color: #0ff;
+    }
+    #summaryText {
+      white-space: pre-wrap;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #0ff;
+    }
+    #actionList {
+      margin-top: 10px;
+      padding-left: 20px;
+      color: #0ff;
+    }
+    #actionList li {
+      margin-bottom: 6px;
+    }
+    #timer {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0ff;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎙️ Start New Meeting Note</h2>
+
+    <button id="startBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop & Upload</button>
+    <div id="timer">⏱️ 00:00</div>
+    <p id="error" class="error"></p>
+
+    <div id="doneBox">
+      <p style="font-weight: bold; color: #0f0;">✅ Meeting summarization finished!</p>
+      <a href="/dashboard"><button>🔁 Go to Dashboard</button></a>
+    </div>
+
+    <div id="summaryBox">
+      <h3>📝 Summary:</h3>
+      <p id="summaryText"></p>
+      <h3 style="margin-top: 20px;">✅ Action Items:</h3>
+      <ul id="actionList"></ul>
+    </div>
+  </div>
+
+ <script>
+  let recorder, chunks = [];
+  let screenStream, micStream;
+  let timerInterval, seconds = 0;
+
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const errorBox = document.getElementById('error');
+  const doneBox = document.getElementById('doneBox');
+  const summaryBox = document.getElementById('summaryBox');
+  const summaryText = document.getElementById('summaryText');
+  const actionList = document.getElementById('actionList');
+  const timerDisplay = document.getElementById('timer');
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  function startTimer() {
+    seconds = 0;
+    timerDisplay.textContent = `⏱️ ${formatTime(seconds)}`;
+    timerDisplay.style.display = 'block';
+    timerInterval = setInterval(() => {
+      seconds++;
+      timerDisplay.textContent = `⏱️ ${formatTime(seconds)}`;
+    }, 1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+    timerDisplay.style.display = 'none';
+  }
+
+  startBtn.onclick = async () => {
+    errorBox.textContent = "";
+    doneBox.style.display = "none";
+    summaryBox.style.display = "none";
+    summaryText.textContent = "";
+    actionList.innerHTML = "";
+
+    try {
+      const audioContext = new AudioContext();
+
+      // 📺 Screen + tab audio
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+
+      // 🎙 Mic audio
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // 🔄 Create sources and destination
+      const screenAudio = audioContext.createMediaStreamSource(screenStream);
+      const micAudio = audioContext.createMediaStreamSource(micStream);
+      const destination = audioContext.createMediaStreamDestination();
+
+      // 🎚️ Mix both streams
+      screenAudio.connect(destination);
+      micAudio.connect(destination);
+
+      // ✅ Only audio stream to recorder
+      const finalAudioStream = destination.stream;
+
+      const mimeType = 'audio/webm';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        throw new Error("Your browser doesn't support 'audio/webm'. Try Chrome.");
+      }
+
+      chunks = [];
+      recorder = new MediaRecorder(finalAudioStream, { mimeType });
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stopTimer();
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', blob, 'meeting_audio.webm');
+
+        try {
+          const res = await fetch('/upload_audio', {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await res.json();
+          console.log("Upload result:", result);
+
+          if (result.status === "success") {
+            doneBox.style.display = "block";
+            summaryBox.style.display = "block";
+            summaryText.textContent = result.summary || "No summary returned.";
+
+            if (Array.isArray(result.action_items)) {
+              result.action_items.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = "✅ " + item;
+                actionList.appendChild(li);
+              });
+            } else {
+              const li = document.createElement("li");
+              li.textContent = "No action items.";
+              actionList.appendChild(li);
+            }
+          } else {
+            errorBox.textContent = result.error || "Unknown error.";
+          }
+        } catch (err) {
+          errorBox.textContent = 'Upload failed: ' + err.message;
+        }
+      };
+
+      recorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      startTimer();
+
+      alert("🎧 Select your tab and check 'Share tab audio'. Mic and tab audio will be recorded together.");
+
+    } catch (err) {
+      errorBox.textContent = '❌ Capture error: ' + err.message;
+      console.error("Capture error:", err);
+    }
+  };
+
+  stopBtn.onclick = () => {
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+      [...(screenStream?.getTracks() || []), ...(micStream?.getTracks() || [])].forEach(track => track.stop());
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    }
+  };
+</script>
+</body>
+</html>

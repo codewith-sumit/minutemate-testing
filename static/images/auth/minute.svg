@@ -1,0 +1,60 @@
+<!-- Save this as minutemate_logo.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-label="Minutemate logo">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0ea5a4"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0b1220" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- icon: circular chat + clock + sound waves -->
+  <g transform="translate(60,40)">
+    <!-- outer circle with gradient -->
+    <circle cx="80" cy="80" r="74" fill="url(#g1)" filter="url(#shadow)" />
+    <!-- inner lighten -->
+    <circle cx="80" cy="80" r="58" fill="white" opacity="0.06" />
+    <!-- clock face (subtle) -->
+    <circle cx="80" cy="80" r="28" fill="#ffffff" opacity="0.08" />
+    <g transform="translate(80,80)">
+      <!-- hour hand -->
+      <rect x="-2" y="-2" width="36" height="4" rx="2" fill="white" opacity="0.95" transform="rotate(40) translate(6,-18)"/>
+      <!-- minute hand -->
+      <rect x="-2" y="-2" width="46" height="3" rx="2" fill="white" opacity="0.95" transform="rotate(-20) translate(10,-9)"/>
+      <!-- center dot -->
+      <circle cx="0" cy="0" r="3.5" fill="#0b1220" />
+    </g>
+
+    <!-- speech tail -->
+    <path d="M118 118 L140 150 L110 138 Z" fill="url(#g1)" opacity="0.95"/>
+
+    <!-- sound/wave lines -->
+    <g transform="translate(160,50)">
+      <path d="M0 20 C10 0, 30 0, 40 20" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+      <path d="M8 28 C18 8, 38 8, 48 28" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+    </g>
+  </g>
+
+  <!-- Text: Minutemate -->
+  <g transform="translate(240,145)">
+    <!-- Brand name -->
+    <text x="0" y="0" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial"
+          font-size="72" font-weight="700" fill="url(#g2)" letter-spacing="-1">
+      Minutemate
+    </text>
+
+    <!-- subtle tagline (optional, commented out) -->
+    <!--
+    <text x="0" y="46" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto"
+          font-size="18" font-weight="500" fill="#243240" opacity="0.6">
+      Your AI buddy for meeting minutes
+    </text>
+    -->
+  </g>
+</svg>
