@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Password Reset - MinuteMate</title>
+    <style>
+      body {
+        font-family: 'Nunito', Arial, sans-serif;
+        background: #f5f6fa;
+        color: #222;
+        padding: 0;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4361ee, #3b82f6);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .header img {
+        width: 120px;
+        margin-bottom: 10px;
+      }
+
+      .content {
+        padding: 30px 40px;
+        text-align: left;
+      }
+
+      h2 {
+        color: #1a1a1a;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 14px 28px;
+        margin-top: 25px;
+        background: linear-gradient(135deg, #4361ee, #3b82f6);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.25s ease-in-out;
+      }
+
+      .btn:hover {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+      }
+
+      .footer {
+        text-align: center;
+        font-size: 13px;
+        color: #888;
+        padding: 20px;
+        background: #fafafa;
+      }
+
+      @media (max-width: 600px) {
+        .content {
+          padding: 20px;
+        }
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="https://postimg.cc/jD1m9GQj" alt="MinuteMate Logo" />
+        <h1>MinuteMate</h1>
+      </div>
+
+      <div class="content">
+        <h2>Password Reset Request</h2>
+        <p>Hello {{ name }},</p>
+        <p>
+          We received a request to reset your MinuteMate password.
+          Click the button below to securely reset it:
+        </p>
+
+        <p style="text-align: center;">
+          <a href="{{ reset_link }}" class="btn">Reset Password</a>
+        </p>
+
+        <p>
+          If you did not request this, please ignore this email. Your password
+          will remain unchanged.
+        </p>
+      </div>
+
+      <div class="footer">
+        © {{ year }} MinuteMate.All rights reserved by Axilivo.<br/>
+        <small>This is an automated message. Please do not reply.</small>
+      </div>
+    </div>
+  </body>
+</html>

@@ -11,10 +11,9 @@ from models import db  # ✅ db imported from models.py
 # --- Load environment variables ---
 load_dotenv()
 
-# --- Global Extensions ---
+# --- Extensions ---
 mail = Mail()
 oauth = OAuth()
-s = None  # Serializer will be initialized in create_app()
 
 # --- Flask App Factory ---
 def create_app():
@@ -34,6 +33,7 @@ def create_app():
         MAIL_USE_TLS=True,
         MAIL_USERNAME=os.getenv('EMAIL_USER'),
         MAIL_PASSWORD=os.getenv('EMAIL_PASS'),
+        MAIL_DEFAULT_SENDER=('MinuteMate Support', 'your_real_gmail@gmail.com')
     )
 
     # --- Initialize Extensions ---
@@ -41,8 +41,8 @@ def create_app():
     mail.init_app(app)
     oauth.init_app(app)
 
-    # global s
-    s = URLSafeTimedSerializer(app.secret_key)
+    # --- Serializer ---
+    app.config['SERIALIZER'] = URLSafeTimedSerializer(app.secret_key)
 
     # --- Ensure directories exist ---
     os.makedirs(os.path.join(basedir, 'recordings'), exist_ok=True)
@@ -52,10 +52,12 @@ def create_app():
     from routes.auth import auth_bp
     from routes.dashboard import dashboard_bp
     from routes.meeting_route import meeting_bp
+    from routes.profile_route import profile_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(meeting_bp)
+    app.register_blueprint(profile_bp)
 
     # --- Default Route ---
     @app.route('/')

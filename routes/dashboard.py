@@ -10,13 +10,13 @@ dashboard_bp = Blueprint('dashboard', __name__)
 @dashboard_bp.route('/dashboard')
 def dashboard():
     if 'user' not in session:
-        flash("Please log in first!", "warning")
+        flash("Please log in first!", "warning") # ⚠️ चेतावनी
         return redirect('/login')
 
     user = User.query.filter_by(email=session['user']).first()
 
     if not user:
-        flash("User not found.", "danger")
+        flash("User not found.", "danger") # ❌ त्रुटि
         return redirect('/login')
 
     # ✅ Show only the logged-in user's meetings (even for admin)
@@ -38,7 +38,7 @@ def dashboard():
 @dashboard_bp.route('/admin')
 def admin():
     if session.get('role') != 'admin':
-        flash("Admins only.", "danger")
+        flash("Admins only.", "danger") # ❌ त्रुटि
         return redirect('/dashboard')
 
     users = User.query.all()
@@ -52,10 +52,6 @@ def admin():
 
 def newmeet():
     return render_template("newmeet.html")
-
-@dashboard_bp.route('/profile')
-def profile():
-    return render_template("profile.html", user=session['name'])
 
 
 

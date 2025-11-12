@@ -103,6 +103,16 @@
                                     <h1 class="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">Sign Up</h1>
                                     <p class="text-base font-bold leading-normal text-white-dark">Enter your email and password to register</p>
                                 </div>
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                    {% if messages %}
+                                        {% for category, message in messages %}
+                                        <div class="alert alert-{{ category }} alert-dismissible">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
                                 <form class="space-y-5 dark:text-white" @submit.prevent="window.location='#'" method="POST" action="{{ url_for('auth.signup') }}">
                                     <div>
                                         <label for="Name">Name</label>

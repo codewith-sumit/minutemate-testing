@@ -215,10 +215,10 @@ def download_pdf(meeting_id):
 def delete_meeting(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
     if session.get('role') != 'admin' and session['user'] != meeting.user.email:
-        flash("Unauthorized.", "danger")
+        flash("You are not authorized to delete this meeting.", "danger") # ❌ त्रुटि
         return redirect('/dashboard')
 
     db.session.delete(meeting)
     db.session.commit()
-    flash("Deleted successfully.", "info")
+    flash("Meeting deleted successfully.", "success") # ✅ सफलता
     return redirect('/dashboard')
