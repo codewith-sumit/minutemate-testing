@@ -153,16 +153,16 @@
                                             </div>
                                             <div class="truncate ltr:pl-4 rtl:pr-4">
                                                 <h4 class="text-base">
-                                                    John Doe<span
-                                                        class="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">Pro</span>
+                                                    {{ user }}<span
+                                                        class="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">{{ role }}</span>
                                                 </h4>
                                                 <a class="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
-                                                    href="javascript:;">coder@gmail.com</a>
+                                                    href="javascript:;">{{ user_email }}</a>
                                             </div>
                                         </div>
                                     </li>
                                     <li>
-                                        <a href="profile.html" class="dark:hover:text-white" @click="toggle">
+                                        <a href="{{url_for('dashboard.profile')}}" class="dark:hover:text-white" @click="toggle">
                                             <svg class="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                                 viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5" />
@@ -173,7 +173,7 @@
                                             Profile</a>
                                     </li>
                                     <li class="border-t border-white-light dark:border-white-light/10">
-                                        <a href="login.html" class="!py-3 text-danger" @click="toggle">
+                                        <a href="{{ url_for('auth.logout') }}" class="!py-3 text-danger" >
                                             <svg class="h-4.5 w-4.5 rotate-90 ltr:mr-2 rtl:ml-2" width="18" height="18"
                                                 viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path opacity="0.5"
@@ -288,24 +288,45 @@
         </div>
     </div>
     
-    {% for meeting in meetings %}
+  {% for meeting in meetings %}
 <div id="modal-{{ meeting.id }}" class="fixed inset-0 z-[999] hidden overflow-y-auto bg-[black]/60">
-    <div class="flex min-h-screen items-center justify-center px-4">
+    <div class="flex min-h-screen items-center justify-center p-4 sm:p-6">
         <div @click.outside="document.getElementById('modal-{{ meeting.id }}').classList.add('hidden')" 
-             class="panel max-w-lg w-full dark:text-white">
+     class="panel w-full max-w-lg sm:max-w-2xl dark:text-white max-h-[90vh] overflow-y-auto">
             
-            <h3 class="text-xl font-bold mb-4">{{ meeting.title }}</h3>
-            <p><strong>Date:</strong> {{ meeting.created_at.strftime('%Y-%m-%d') }}</p>
-            <p><strong>Start Time:</strong> 12:00 PM</p>
-            <p><strong>End Time:</strong> 2:00 PM</p>
-            <p class="mt-4"><strong>Notes:</strong></p>
+            <h3 class="text-xl sm:text-2xl font-bold mb-4">{{ meeting.title }}</h3>
             
-            <div class="mt-2 p-3 bg-white dark:bg-[#1a2941] rounded h-48 overflow-y-auto border border-gray-700 text-black dark:text-white">
-                {{ meeting.notes|safe }}
+            <div class="grid grid-cols-1 gap-2 mb-4 text-sm sm:grid-cols-3 sm:gap-4">
+                <p><strong>Date:</strong> {{ meeting.created_at.strftime('%Y-%m-%d') }}</p>
+                <p><strong>Start Time:</strong> 12:00 PM</p>
+                <p><strong>End Time:</strong> 2:00 PM</p>
+            </div>
+            
+            <h4 class="text-base sm:text-lg font-semibold mt-4 mb-2">📝 Transcript</h4>
+            <div class="p-3 bg-white dark:bg-[#1a2941] rounded h-48 sm:h-64 max-h-[70vh] overflow-y-auto border border-gray-700 text-black dark:text-white mb-4">
+                <pre class="whitespace-pre-wrap text-xs sm:text-sm">{{ meeting.transcript }}</pre>
+            </div>
+
+            <h4 class="text-base sm:text-lg font-semibold mb-2">📌 Summary</h4>
+            <div class="p-3 bg-white dark:bg-[#1a2941] rounded overflow-y-auto border border-gray-700 text-black dark:text-white mb-4">
+                <pre class="whitespace-pre-wrap text-xs sm:text-sm">{{ meeting.summary }}</pre>
+            </div>
+
+            <h4 class="text-base sm:text-lg font-semibold mb-2">✅ Action Items</h4>
+            <div class="p-3 bg-white dark:bg-[#1a2941] rounded overflow-y-auto border border-gray-700 text-black dark:text-white">
+                {% if meeting.action_items %}
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        {% for item in meeting.action_items %}
+                            <li>✅ {{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="italic text-gray-500 dark:text-gray-400 text-sm">No action items found.</p>
+                {% endif %}
             </div>
             
             <div class="mt-6 text-right">
-                <button type="button" class="btn btn-outline-danger" onclick="document.getElementById('modal-{{ meeting.id }}').classList.add('hidden');">Close</button>
+                <button type="button" class="btn btn-outline-danger" onclick="document.getElementById('modal-{{ meeting.id }}').classList.add('hidden')">Close</button>
             </div>
         </div>
     </div>

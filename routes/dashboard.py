@@ -30,7 +30,7 @@ def dashboard():
             except:
                 meeting.action_items = []
 
-    return render_template("dashboard.html", user=session['name'], role=session['role'], meetings=meetings)
+    return render_template("dashboard.html", user=session['name'], user_email=session['user'] ,role=session['role'], meetings=meetings)
 
 # ----------------------------
 # 👑 Admin Page (user list only)
@@ -48,6 +48,8 @@ def admin():
 # ➕ New Meeting Page
 # ----------------------------
 @dashboard_bp.route('/newmeet')
+
+
 def newmeet():
     return render_template("newmeet.html")
 
