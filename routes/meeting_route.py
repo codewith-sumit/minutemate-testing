@@ -16,6 +16,7 @@ from models import db, User, Meeting
 from gemini_utils import summarize_with_gemini
 from google import genai
 from google.genai import types
+from .decorators import login_required
 
 meeting_bp = Blueprint('meeting', __name__)
 
@@ -40,7 +41,7 @@ def transcribe_and_summarize(audio_path: str):
                 " Transcribe this meeting audio and return JSON with keys transcript, summary, and action_items. Action_items should be a list of objects like: [{\"who\": \"Person\", \"what\": \"Task\", \"when\": \"Date\"}],"
             ]   
         )
-        print("🧾 Raw Gemini Response:", response.text.strip())
+        print(" Raw Gemini Response:", response.text.strip())
         raw = response.text.strip()
         cleaned = re.sub(r"^```json|```$", "", raw).strip()
         data = json.loads(cleaned)
@@ -56,9 +57,8 @@ def transcribe_and_summarize(audio_path: str):
 
 # ------------------ UPLOAD AUDIO ------------------
 @meeting_bp.route('/upload_audio', methods=['POST'])
+@login_required
 def upload_audio():
-    if 'user' not in session:
-        return jsonify(status="error", error="Unauthorized"), 401
     if 'audio' not in request.files:
         return jsonify(status="error", error="Audio missing"), 400
 
@@ -91,6 +91,7 @@ def upload_audio():
 
 # ------------------ DOWNLOAD PDF ------------------
 @meeting_bp.route('/download_pdf/<int:meeting_id>')
+@login_required
 def download_pdf(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
 
@@ -212,13 +213,14 @@ def download_pdf(meeting_id):
 
 # ------------------ DELETE MEETING ------------------
 @meeting_bp.route('/delete/<int:meeting_id>', methods=['POST'])
+@login_required
 def delete_meeting(meeting_id):
     meeting = Meeting.query.get_or_404(meeting_id)
     if session.get('role') != 'admin' and session['user'] != meeting.user.email:
-        flash("You are not authorized to delete this meeting.", "danger") # ❌ त्रुटि
+        flash("You are not authorized to delete this meeting.", "danger") 
         return redirect('/dashboard')
 
     db.session.delete(meeting)
     db.session.commit()
-    flash("Meeting deleted successfully.", "success") # ✅ सफलता
+    flash("Meeting deleted successfully.", "success") 
     return redirect('/dashboard')

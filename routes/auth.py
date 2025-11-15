@@ -12,7 +12,7 @@ import os
 auth_bp = Blueprint('auth', __name__)
 oauth = OAuth()
 
-# ✅ Google OAuth Setup
+# Google OAuth Setup
 google = oauth.remote_app(
     'google',
     consumer_key=os.getenv("GOOGLE_CLIENT_ID"),
@@ -29,7 +29,7 @@ def get_google_oauth_token():
     return session.get('google_token')
 
 # ----------------------------
-# 🚪 Login 
+# Login 
 # ----------------------------
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -38,7 +38,7 @@ def login():
 
     form_type = request.form.get("form_type")
 
-    # 🔐 Signup
+    # Signup
     if form_type == "signup":
         name = request.form.get('name')
         email = request.form.get('email')
@@ -46,10 +46,10 @@ def login():
         confirm = request.form.get('confirm')
 
         if not all([name, email, password, confirm]):
-            flash("All fields are required.", "danger") # ❌ त्रुटि
+            flash("All fields are required.", "danger") 
             return redirect(url_for('auth.login'))
         elif password != confirm:
-            flash("Passwords do not match.", "danger") # ❌ त्रुटि
+            flash("Passwords do not match.", "danger") 
             return redirect(url_for('auth.login'))
         elif User.query.filter_by(email=email).first():
             flash("An account with this email already exists.", "danger")
@@ -58,33 +58,33 @@ def login():
             hashed = generate_password_hash(password)
             db.session.add(User(name=name, email=email, password_hash=hashed))
             db.session.commit()
-            flash("Signup successful! Please log in.", "success") # ✅ सफलता
+            flash("Signup successful! Please log in.", "success") 
             session["prefill_email"] = email
             return redirect(url_for('auth.login'))
 
-    # 🔑 Login
+    #  Login
     elif form_type == "login":
         email = request.form.get('email')
         password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            flash("No account found with this email.", "danger") # ❌ त्रुटि
+            flash("No account found with this email.", "danger") 
             return redirect(url_for('auth.login'))
         elif not check_password_hash(user.password_hash, password):
-            flash("Incorrect password. Please try again.", "danger") # ❌ त्रुटि
+            flash("Incorrect password. Please try again.", "danger")
             return redirect(url_for('auth.login'))
         else:
             session['user'] = user.email
             session['role'] = user.role
             session['name'] = user.name
-            flash("Logged in successfully!", "success") # ✅ सफलता
+            flash("Logged in successfully!", "success") 
             return redirect("/dashboard")
 
 
 
 # ----------------------------
-# 📝 Separate Signup Route
+#  Signup Route
 # ----------------------------
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -95,11 +95,11 @@ def signup():
         confirm = request.form.get('confirm')
 
         if not all([name, email, password, confirm]):
-            flash("All fields are required.", "danger") # ❌ त्रुटि
+            flash("All fields are required.", "danger") 
             return redirect(url_for('auth.signup'))
 
         elif password != confirm:
-            flash("Passwords do not match.", "danger") # ❌ त्रुटि
+            flash("Passwords do not match.", "danger") 
             return redirect(url_for('auth.signup'))
 
         elif User.query.filter_by(email=email).first():
@@ -110,7 +110,7 @@ def signup():
             hashed = generate_password_hash(password)
             db.session.add(User(name=name, email=email, password_hash=hashed))
             db.session.commit()
-            flash("Signup successful! Please log in.", "success") # ✅ सफलता
+            flash("Signup successful! Please log in.", "success") 
             session["prefill_email"] = email
             return redirect(url_for('auth.login'))
 
@@ -150,11 +150,11 @@ def google_callback():
     session['user'] = user.email
     session['role'] = user.role
     session['name'] = user.name
-    flash("Logged in via Google!", "success") # ✅ सफलता
+    flash("Logged in via Google!", "success") 
     return redirect("/dashboard")
 
 # ----------------------------
-# 🔐 Forget Password
+# Forget Password
 # ----------------------------
 from flask import render_template, current_app, flash, redirect, url_for, request
 from flask_mail import Message
@@ -173,11 +173,11 @@ def forget():
             return redirect('/forget')
 
         try:
-            # ✅ Generate token
+            #  Generate token
             token = current_app.config['SERIALIZER'].dumps(email, salt='reset-password')
             reset_link = url_for('auth.reset_token', token=token, _external=True)
 
-            # ✅ Render HTML email from template
+            # Render HTML email from template
             html_body = render_template(
                 'email_reset.html',
                 name=user.name,
@@ -185,7 +185,7 @@ def forget():
                 year=datetime.now().year
             )
 
-            # ✅ Compose Message
+            #  Compose Message
             msg = Message(
                 subject="Reset Your Password - MinuteMate",
                 recipients=[email],
@@ -193,7 +193,7 @@ def forget():
                 html=html_body
             )
 
-            # ✅ Send Email
+            #  Send Email
             mail.send(msg)
 
             flash("A reset link has been sent to your email.", "success")
@@ -208,16 +208,16 @@ def forget():
     return render_template("forget.html", year=datetime.now().year)
 
 # ----------------------------
-# 🔐 Reset Password
+# Reset Password
 # ----------------------------
 @auth_bp.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_token(token):
     try:
         email = current_app.config['SERIALIZER'].loads(token, salt='reset-password', max_age=600)
-    except SignatureExpired: # ⌛️ समय समाप्त
-        flash("Reset link has expired. Please request again.", "danger") # ❌ त्रुटि
+    except SignatureExpired: 
+        flash("Reset link has expired. Please request again.", "danger") 
         return redirect('/forget')
-    except BadSignature: # 🛡️ अमान्य
+    except BadSignature:
         flash("Invalid or tampered reset link.", "danger")
         return redirect('/forget')
 
@@ -226,22 +226,22 @@ def reset_token(token):
         confirm = request.form['confirm']
 
         if new_pass != confirm:
-            flash("Passwords do not match.", "danger") # ❌ त्रुटि
+            flash("Passwords do not match.", "danger")
         else:
             user = User.query.filter_by(email=email).first()
             user.password_hash = generate_password_hash(new_pass)
             db.session.commit()
-            flash("Password updated successfully!", "success") # ✅ सफलता
+            flash("Password updated successfully!", "success") 
             return redirect('/login')
 
     return render_template("newpassword.html", token=token, year=datetime.now().year)
     
 
 # ----------------------------
-# 🚪 Logout
+# Logout
 # ----------------------------
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    flash("You have been logged out.", "info") # ℹ️ सूचना
+    flash("You have been logged out.", "info") 
     return redirect('/login')

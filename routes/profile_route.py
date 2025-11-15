@@ -1,18 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User
-from functools import wraps
+from .decorators import login_required
 
 profile_bp = Blueprint('profile', __name__)
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user' not in session:
-            flash("Please log in to access this page.", "danger") # ❌ त्रुटि
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 @profile_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
